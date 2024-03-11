@@ -1,53 +1,128 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9BCC1225-0C19-4669-8E07-CE8368C40C69}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Sayısal_Loto</RootNamespace>
-    <AssemblyName>Sayısal Loto</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-</Project>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Sayısal_Loto
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Sayısal Loto Oyununa Hoşgeldiniz!\n\n");
+            Console.WriteLine("Kurallar\n");
+            Console.WriteLine("1--> Oyuncu 1 ile 90 Arasında 6 Tane Sayı Seçer.\n");
+            Console.WriteLine("2--> Sistem 6 Adet Rastgele Sayı Üretir.\n");
+            Console.WriteLine("3--> Oyuncu Rastgele Üretilen 6 Sayıdan Tamamını Doğru Tahmin Ederse Oyunu Kazanır.\n");
+
+            int[] secimler = new int[6];
+            int[] uretim = new int[6];
+            Random rastgele = new Random();
+            tekrar:
+            for(int i = 0; i < secimler.Length; i++)
+            {
+                secim:
+                Console.Write(i+1 + ". Sayıyı Seçiniz: ");
+                secimler[i] = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine();
+                if (secimler[i] < 1 || secimler[i] > 90)
+                {
+                    Console.WriteLine("Seçebileceğiniz Sayılar 1 ile 90 Arasındadır. Lütfen Sayınızı Tekrar Giriniz.\n");
+                    goto secim;
+                }
+            }
+
+            for(int i = 0; i < uretim.Length; i++)
+            {
+                uretim[i] = rastgele.Next(1,91);
+            }
+
+            Array.Sort(secimler);
+            Array.Sort(uretim);
+
+            Console.Write("Seçtiğiniz Sayılar = \t");
+            for(int i = 0; i < secimler.Length; i++)
+            {
+                Console.Write(secimler[i] + " ");
+            }
+            Console.WriteLine();
+            Console.Write("Rastgele Sayılar = \t");
+            for (int i = 0; i < uretim.Length; i++)
+            {
+                System.Threading.Thread.Sleep(1000);
+                Console.Write(uretim[i] + " ");
+            }
+            Console.WriteLine();
+            int sayi = 0;
+            int[] hangisayi = new int[6];
+            for (int i = 0; i < 6; i++)
+            {
+                int aranan = secimler[i];
+                int deger = Array.BinarySearch(uretim, aranan);
+
+                if (deger > -1)
+                {
+                    if (i > 0)
+                    {
+                        if (aranan != secimler[i - 1])
+                        {
+                            sayi += 1;
+                            
+                            hangisayi[i] = aranan;
+                        }   
+                    }    
+                }
+            }
+
+            if (uretim[0] == secimler[0]) // 2 Dizenin de [0]. değerini okumuyordu. Hatanın Çözümü.
+            {
+
+                int i = 0;
+                sayi += 1;
+                hangisayi[i] = secimler[0];
+            }
+            System.Threading.Thread.Sleep(1000);
+
+            Console.Write(sayi + " Tane Sayıyı Bildiniz. ( ");
+            foreach(int x in hangisayi)
+            {
+                if (x != 0) // Bilemediğimiz Zaman değeri 0 atıyor. 0 Atamamasını Sağladım.
+                {
+                    Console.Write(x + " ");
+                }
+            }
+            Console.WriteLine(")");
+
+            if (sayi == 6)
+            {
+                Console.WriteLine("TEBRİKLER KAZANDINIZ!");
+            }
+            else
+            {
+                Console.WriteLine("KAYBETTİNİZ!");
+            }
+
+            string tekraroyna;
+            hatalisecim:
+            Console.WriteLine("Tekrar Oynamak İster Misiniz? (e/h)");
+            tekraroyna = Console.ReadLine();
+
+            if (tekraroyna == "e" || tekraroyna == "E")
+            {
+                goto tekrar;
+            }
+            else if (tekraroyna == "h" ||  tekraroyna == "H")
+            {
+                Environment.Exit(0);
+            }
+            else
+            {
+                Console.WriteLine("Hatalı Seçim Yaptınız.");
+                goto hatalisecim;
+            }
+
+            Console.ReadLine();
+        }
+    }
+}
